@@ -123,11 +123,13 @@ themeBtn.click();
 const pop = shadow.getElementById('lp-theme-pop');
 ok(!!pop, '点主题色按钮弹出小色板');
 const dots = pop ? pop.querySelectorAll('.lp-dot') : [];
-ok(dots.length === 6, '色板含 6 个色点（实际 ' + dots.length + '）');
-ok(host.style.getPropertyValue('--lp-accent') === '#00BCF2', '默认为晴空蓝（实际 ' + host.style.getPropertyValue('--lp-accent') + '）');
+ok(dots.length === 8, '色板含 8 个色点（与网页版色卡一致，实际 ' + dots.length + '）');
+ok(host.style.getPropertyValue('--lp-accent') === '#00BCF2', '默认 Metro 蓝（实际 ' + host.style.getPropertyValue('--lp-accent') + '）');
 dots[1].click();
-ok(host.style.getPropertyValue('--lp-accent') === '#00A99D',
-  '选第 2 个色点后 --lp-accent = #00A99D（实际 ' + host.style.getPropertyValue('--lp-accent') + '）');
+ok(host.style.getPropertyValue('--lp-accent') === '#84709B',
+  '选第 2 套（暮色紫）后 --lp-accent = #84709B（实际 ' + host.style.getPropertyValue('--lp-accent') + '）');
+ok(host.style.getPropertyValue('--lp-bg') === '#E8E9F0',
+  '暮色紫同时应用底色 #E8E9F0（实际 ' + host.style.getPropertyValue('--lp-bg') + '）');
 ok(!shadow.getElementById('lp-theme-pop'), '选色后色板自动收起');
 themeBtn.click();
 ok(!!shadow.getElementById('lp-theme-pop'), '再点主题按钮可重新打开色板');

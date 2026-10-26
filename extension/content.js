@@ -157,7 +157,7 @@
     }));
   }
   function loadSettings() {
-    var s = { w: 400, h: 580, x: -1, y: -1, open: false, wide: false, theme: 'azure' };
+    var s = { w: 400, h: 580, x: -1, y: -1, open: false, wide: false, theme: 'metro' };
     try {
       var raw = store.getSettings();
       if (raw) {
@@ -197,14 +197,14 @@
    * 样式（Shadow DOM 隔离，Metro 扁平化）
    * ================================================================ */
   var CSS = [
-    ':host{all:initial;--lp-accent:var(--lp-accent);--lp-accent-d:var(--lp-accent-d);--lp-accent-l:var(--lp-accent-l)}',
+    ':host{all:initial;--lp-accent:#00BCF2;--lp-accent-d:#0093BF;--lp-accent-l:#b3e5f8;--lp-bg:#EFEFF2}',
     '.lp-ball{position:fixed;right:22px;bottom:22px;width:46px;height:46px;background:var(--lp-accent);color:#fff;',
     '  display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2147483647;',
     '  border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,.28);font-size:22px;line-height:1;user-select:none;',
     '  transition:transform .12s ease-out;font-family:"Segoe UI","Microsoft YaHei",sans-serif}',
     '.lp-ball:hover{transform:scale(1.08)}',
     '.lp-ball:active{transform:scale(.96)}',
-    '.lp-panel{position:fixed;display:none;flex-direction:column;background:#f4f5f9;z-index:2147483647;',
+    '.lp-panel{position:fixed;display:none;flex-direction:column;background:var(--lp-bg);z-index:2147483647;',
     '  border-radius:4px;box-shadow:0 6px 28px rgba(0,0,0,.32);overflow:hidden;',
     '  font-family:"Segoe UI","Microsoft YaHei",sans-serif;border:1px solid var(--lp-accent-d);color:#1f2329}',
     '.lp-panel.show{display:flex}',
@@ -828,12 +828,14 @@
 
   /* ---- 主题色（v2.0.6）：头部色点按钮 → 6 色小色板，选择后持久化 ---- */
   var THEMES = [
-    { id: 'azure', name: '晴空蓝', a: '#00BCF2', d: '#0aa9d6', l: '#b3e5f8' },
-    { id: 'teal', name: '薄荷青', a: '#00A99D', d: '#00796B', l: '#B2DFDB' },
-    { id: 'green', name: '嫩芽绿', a: '#60A917', d: '#3F7A0B', l: '#C5E1A5' },
-    { id: 'amber', name: '琥珀橙', a: '#FA6800', d: '#C94A00', l: '#FFCCBC' },
-    { id: 'purple', name: '暮色紫', a: '#7B4FBE', d: '#4E1F5F', l: '#D1C4E9' },
-    { id: 'rose', name: '玫红', a: '#E3008C', d: '#A00063', l: '#F8BBD0' }
+    { id: 'metro',     name: 'Metro 蓝',  a: '#00BCF2', d: '#0093BF', bg: '#EFEFF2', l: '#b3e5f8' },
+    { id: 'dusk',      name: '暮色紫',    a: '#84709B', d: '#464879', bg: '#E8E9F0', l: '#D6D2E4' },
+    { id: 'peach',     name: '蜜桃粉',    a: '#E8607A', d: '#A03A50', bg: '#F6EEEA', l: '#F8D3DA' },
+    { id: 'lagoon',    name: '海湖蓝',    a: '#3E7D9C', d: '#2A556B', bg: '#EAF2F4', l: '#C9DEE7' },
+    { id: 'sunset',    name: '落日橙',    a: '#E8720C', d: '#A34F00', bg: '#FBF3E8', l: '#FADFC1' },
+    { id: 'bubblegum', name: '泡泡糖',    a: '#E75A9C', d: '#A03A6C', bg: '#FDF0F6', l: '#F9CFE0' },
+    { id: 'sumi',      name: '品牌红黑',  a: '#E4002B', d: '#1C1C1E', bg: '#F2EFE9', l: '#F5C7CE' },
+    { id: 'bamboo',    name: '竹米绿',    a: '#7A9464', d: '#4C623D', bg: '#F2EFE3', l: '#D8E2CC' }
   ];
   function themeById(id) {
     for (var i = 0; i < THEMES.length; i++) { if (THEMES[i].id === id) { return THEMES[i]; } }
@@ -845,6 +847,7 @@
     host.style.setProperty('--lp-accent', t.a);
     host.style.setProperty('--lp-accent-d', t.d);
     host.style.setProperty('--lp-accent-l', t.l);
+    host.style.setProperty('--lp-bg', t.bg);
     var btn = $('lp-theme');
     if (btn) { btn.title = '主题色（当前：' + t.name + '）'; }
     return t;
@@ -863,7 +866,8 @@
     for (var i = 0; i < THEMES.length; i++) {
       var t = THEMES[i];
       html += '<button class="lp-dot' + (t.id === cfg.theme ? ' on' : '') + '" data-tid="' + t.id +
-        '" title="' + t.name + '" style="background:' + t.a + '"></button>';
+        '" title="' + t.name + '（' + t.a + ' / ' + t.d + ' / ' + t.bg + '）" style="background:linear-gradient(135deg,' +
+        t.a + ' 0 34%,' + t.d + ' 34% 67%,' + t.bg + ' 67% 100%)"></button>';
     }
     pop.innerHTML = html;
     pop.addEventListener('click', function (ev) {
