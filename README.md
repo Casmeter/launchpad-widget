@@ -29,10 +29,10 @@ Metro 扁平化风格（Azure 蓝 #00BCF2），与看板本体一致。
 1. 先装一个脚本管理器（任选其一）：
    - [Tampermonkey](https://www.tampermonkey.net/)（Chrome / Edge / Firefox）
    - [Violentmonkey](https://violentmonkey.github.io/)（开源，Edge/Chrome/Firefox）
-2. 点安装链接（把 `<你的用户名>` 和 `<仓库名>` 换成实际值）：
+2. 点安装链接（仓库已发布在 GitHub）：
 
    ```
-   https://raw.githubusercontent.com/<你的用户名>/<仓库名>/main/启动台浮窗.user.js
+   https://raw.githubusercontent.com/Casmeter/launchpad-widget/main/启动台浮窗.user.js
    ```
 
    Tampermonkey 会弹出安装页，点「安装」。
@@ -80,7 +80,7 @@ git commit -m "启动台浮窗 v1.0"
 gh repo create launchpad-widget --public --source=. --push
 ```
 
-之后安装链接就是 `https://raw.githubusercontent.com/<用户名>/launchpad-widget/main/启动台浮窗.user.js`，任何人装上脚本管理器后点这个链接就能装。
+之后安装链接就是 `https://raw.githubusercontent.com/Casmeter/launchpad-widget/main/启动台浮窗.user.js`，任何人装上脚本管理器后点这个链接就能装。
 
 ### GreasyFork（油猴脚本社区）
 
