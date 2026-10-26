@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         启动台浮窗 · 本地版（零登录）
 // @namespace    wb-launchpad-local
-// @version      2.0.4
+// @version      2.0.5
 // @description  任何网页右下角唤出启动台小窗：今日待办、一键启动、打卡、进度、备忘。数据只存在你自己浏览器里，不需要登录任何平台
 // @author       WorkBuddy 启动台
 // @match        http://*/*
@@ -131,6 +131,7 @@
    * 状态读写
    * ================================================================ */
   var state = { entries: [], memos: {}, seeded: false };
+  var editingId = null; /* v2.0.4 fix: 此前从未声明，沙箱严格模式下抛 ReferenceError 导致编辑器打不开 */
 
   function loadState() {
     var raw = store.get();

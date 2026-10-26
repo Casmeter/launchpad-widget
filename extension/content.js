@@ -122,6 +122,7 @@
    * 状态读写
    * ================================================================ */
   var state = { entries: [], memos: {}, seeded: false };
+  var editingId = null; /* v2.0.4 fix: 此前从未声明，沙箱严格模式下抛 ReferenceError 导致编辑器打不开 */
 
   function loadState() {
     var raw = store.get();
