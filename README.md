@@ -93,5 +93,5 @@ README.md                本文件
 ## 八、三种形态怎么选
 
 - **本脚本/扩展（本地版）**：零登录、任何网页唤出、数据在浏览器——日常首选
-- **`启动台浮窗.exe`（v2.2 本地零登录版）**：Edge App 窗口 + 内嵌本地页面，系统级置顶、托盘常驻、开机自启、窗口自愈，脱离脚本管理器；**8 套主题皮肤 + 自定义背景图**；**本地应用直接启动**（自动注册 launchpad:// 协议，支持中文路径，不再下载 bat）。下载：https://github.com/Casmeter/launchpad-widget/releases/download/v2.2.0/launchpad-widget-v2.2.0.exe （需要 Edge/Chrome + .NET 8 桌面运行时）
+- **`启动台浮窗.exe`（v2.2.1 本地零登录版）**：Edge App 窗口 + 内嵌本地页面，系统级置顶、托盘常驻、开机自启、窗口自愈，脱离脚本管理器；**8 套主题皮肤 + 自定义背景图**；**本地应用直接启动**（自动注册 launchpad:// 协议，支持中文路径，不再下载 bat）。下载：https://github.com/Casmeter/launchpad-widget/releases/download/v2.2.1/launchpad-widget-v2.2.1.exe （需要 Edge/Chrome + .NET 8 桌面运行时）
 - **WorkBuddy 看板网页**：需要多设备云同步时用（数据在资料库）
