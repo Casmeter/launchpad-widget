@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "启动台浮窗 · 本地版（零登录）",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "任何网页右下角唤出启动台小窗：今日待办、一键启动、打卡、进度、备忘。数据只存在你自己浏览器里，不需要登录任何平台",
   "content_scripts": [
     {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         启动台浮窗 · 本地版（零登录）
 // @namespace    wb-launchpad-local
-// @version      2.0.5
+// @version      2.0.6
 // @description  任何网页右下角唤出启动台小窗：今日待办、一键启动、打卡、进度、备忘。数据只存在你自己浏览器里，不需要登录任何平台
 // @author       WorkBuddy 启动台
 // @match        http://*/*
@@ -166,7 +166,7 @@
     }));
   }
   function loadSettings() {
-    var s = { w: 400, h: 580, x: -1, y: -1, open: false, wide: false };
+    var s = { w: 400, h: 580, x: -1, y: -1, open: false, wide: false, theme: 'azure' };
     try {
       var raw = (typeof GM_getValue === 'function') ? GM_getValue(LS_KEY_SETTINGS, '') : '';
       if (!raw) { raw = memFallback[LS_KEY_SETTINGS] || ''; }
@@ -179,6 +179,7 @@
           if (typeof o.y === 'number') { s.y = o.y; }
           if (typeof o.open === 'boolean') { s.open = o.open; }
           if (typeof o.wide === 'boolean') { s.wide = o.wide; }
+          if (typeof o.theme === 'string') { s.theme = o.theme; }
         }
       }
     } catch (e) { /* 用默认 */ }
@@ -210,8 +211,8 @@
    * 样式（Shadow DOM 隔离，Metro 扁平化）
    * ================================================================ */
   var CSS = [
-    ':host{all:initial}',
-    '.lp-ball{position:fixed;right:22px;bottom:22px;width:46px;height:46px;background:#00BCF2;color:#fff;',
+    ':host{all:initial;--lp-accent:var(--lp-accent);--lp-accent-d:var(--lp-accent-d);--lp-accent-l:var(--lp-accent-l)}',
+    '.lp-ball{position:fixed;right:22px;bottom:22px;width:46px;height:46px;background:var(--lp-accent);color:#fff;',
     '  display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2147483647;',
     '  border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,.28);font-size:22px;line-height:1;user-select:none;',
     '  transition:transform .12s ease-out;font-family:"Segoe UI","Microsoft YaHei",sans-serif}',
@@ -219,9 +220,9 @@
     '.lp-ball:active{transform:scale(.96)}',
     '.lp-panel{position:fixed;display:none;flex-direction:column;background:#f4f5f9;z-index:2147483647;',
     '  border-radius:4px;box-shadow:0 6px 28px rgba(0,0,0,.32);overflow:hidden;',
-    '  font-family:"Segoe UI","Microsoft YaHei",sans-serif;border:1px solid #0aa9d6;color:#1f2329}',
+    '  font-family:"Segoe UI","Microsoft YaHei",sans-serif;border:1px solid var(--lp-accent-d);color:#1f2329}',
     '.lp-panel.show{display:flex}',
-    '.lp-head{flex:none;height:38px;background:#00BCF2;color:#fff;display:flex;align-items:center;',
+    '.lp-head{flex:none;height:38px;background:var(--lp-accent);color:#fff;display:flex;align-items:center;',
     '  padding:0 4px 0 12px;cursor:move;user-select:none;gap:6px}',
     '.lp-title{font-size:13.5px;font-weight:600;letter-spacing:.3px;white-space:nowrap;flex:1}',
     '.lp-btn{flex:none;border:0;background:transparent;color:#fff;font-size:12.5px;cursor:pointer;',
@@ -231,11 +232,11 @@
     '.lp-summary{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;gap:8px}',
     '.lp-summary .d{font-size:12.5px;color:#69707d;font-variant-numeric:tabular-nums}',
     '.lp-summary .t{font-size:14px;font-weight:600}',
-    '.lp-q{display:flex;align-items:center;gap:8px;background:#fff;border-left:5px solid #00BCF2;',
+    '.lp-q{display:flex;align-items:center;gap:8px;background:#fff;border-left:5px solid var(--lp-accent);',
     '  padding:9px 10px;margin-bottom:7px;border-radius:2px;box-shadow:0 1px 3px rgba(16,24,40,.06)}',
     '.lp-q.overdue{border-left-color:#E51400}',
     '.lp-q.due{border-left-color:#FA6800}',
-    '.lp-q.upcoming{border-left-color:#00BCF2}',
+    '.lp-q.upcoming{border-left-color:var(--lp-accent)}',
     '.lp-q.done{border-left-color:#8a919e;opacity:.72}',
     '.lp-q-main{flex:1;min-width:0}',
     '.lp-q-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
@@ -245,7 +246,7 @@
     '.lp-q.due .lp-q-meta{color:#FA6800;font-weight:600}',
     '.lp-q-acts{display:flex;gap:5px;flex:none}',
     '.lp-act{border:0;border-radius:2px;padding:6px 10px;font-size:12.5px;cursor:pointer;font-family:inherit;white-space:nowrap}',
-    '.lp-act.go{background:#00BCF2;color:#fff}',
+    '.lp-act.go{background:var(--lp-accent);color:#fff}',
     '.lp-act.go:hover{background:#00a8d6}',
     '.lp-act.go.local{background:#00B294}',
     '.lp-act.go.local:hover{background:#009a80}',
@@ -258,11 +259,11 @@
     '.lp-prog .lbl{font-size:11.5px;color:#69707d}',
     '.lp-week{display:flex;gap:3px;align-items:flex-end;height:26px;margin-left:auto}',
     '.lp-week i{display:block;width:9px;background:#dfe3ee;border-radius:1px}',
-    '.lp-week i.on{background:#00BCF2}',
+    '.lp-week i.on{background:var(--lp-accent)}',
     '.lp-week i.today{outline:1px solid #FA6800}',
     '.lp-memo{width:100%;min-height:88px;resize:vertical;font-family:inherit;font-size:13.5px;line-height:1.6;',
     '  padding:9px 10px;border:1px solid #dfe3ee;border-radius:2px;background:#fff;color:#1f2329;box-sizing:border-box}',
-    '.lp-memo:focus{outline:2px solid #b3e5f8;border-color:#00BCF2}',
+    '.lp-memo:focus{outline:2px solid var(--lp-accent-l);border-color:var(--lp-accent)}',
     '.lp-memo-status{font-size:11.5px;color:#00B294;min-height:15px;margin-top:3px}',
     '.lp-hist{margin-top:6px}',
     '.lp-hist-item{display:flex;gap:8px;padding:7px 9px;background:#fff;border-radius:2px;margin-bottom:5px;font-size:12.5px}',
@@ -271,7 +272,7 @@
     '.lp-tools{display:flex;flex-wrap:wrap;gap:5px;margin-top:14px}',
     '.lp-tool{border:1px solid #dfe3ee;background:#fff;color:#1f2329;border-radius:2px;padding:6px 10px;',
     '  font-size:12px;cursor:pointer;font-family:inherit}',
-    '.lp-tool:hover{border-color:#00BCF2;color:#00BCF2}',
+    '.lp-tool:hover{border-color:var(--lp-accent);color:var(--lp-accent)}',
     '.lp-tool.danger:hover{border-color:#E51400;color:#E51400}',
     '.lp-empty{text-align:center;color:#69707d;font-size:13px;padding:26px 10px;background:#fff;border-radius:2px}',
     /* 弹层 */
@@ -283,13 +284,13 @@
     '.lp-field label{display:block;font-size:12px;color:#69707d;margin-bottom:3px}',
     '.lp-field input,.lp-field select{width:100%;font-size:14px;padding:8px 10px;border:1px solid #dfe3ee;',
     '  border-radius:2px;font-family:inherit;box-sizing:border-box;background:#fff;color:#1f2329}',
-    '.lp-field input:focus,.lp-field select:focus{outline:2px solid #b3e5f8;border-color:#00BCF2}',
+    '.lp-field input:focus,.lp-field select:focus{outline:2px solid var(--lp-accent-l);border-color:var(--lp-accent)}',
     '.lp-check{display:flex;align-items:center;gap:7px;margin-top:12px;font-size:13.5px}',
     '.lp-check input{width:16px;height:16px}',
     '.lp-modal-acts{display:flex;gap:6px;margin-top:16px;flex-wrap:wrap}',
     '.lp-modal-acts .sp{flex:1}',
     '.lp-mact{border:0;border-radius:2px;padding:8px 14px;font-size:13px;cursor:pointer;font-family:inherit}',
-    '.lp-mact.pri{background:#00BCF2;color:#fff}',
+    '.lp-mact.pri{background:var(--lp-accent);color:#fff}',
     '.lp-mact.sec{background:#eef0f5;color:#1f2329}',
     '.lp-mact.del{background:#fff;color:#E51400;border:1px solid #f0c8ca}',
     /* Toast */
@@ -297,7 +298,12 @@
     '  padding:9px 15px;border-radius:3px;font-size:13px;z-index:20;white-space:nowrap;max-width:92%;',
     '  overflow:hidden;text-overflow:ellipsis;box-shadow:0 4px 14px rgba(0,0,0,.25)}',
     '.lp-toast.err{background:#b3261e}',
-    '.lp-hidden{display:none!important}'
+    '.lp-hidden{display:none!important}',
+    /* 主题色小色板 */
+    '.lp-theme-pop{position:absolute;top:40px;right:6px;background:#fff;border:1px solid var(--lp-accent-d);',
+    '  border-radius:3px;padding:6px;display:flex;gap:6px;z-index:30;box-shadow:0 4px 14px rgba(0,0,0,.22)}',
+    '.lp-dot{flex:none;width:20px;height:20px;border-radius:2px;border:0;cursor:pointer;padding:0}',
+    '.lp-dot.on{outline:2px solid #23272f;outline-offset:1px}'
   ].join('\n');
 
   /* ================================================================
@@ -329,12 +335,13 @@
     '<div class="lp-panel" id="lp-panel">' +
     '  <div class="lp-head" id="lp-head">' +
     '    <span class="lp-title">⚡ 启动台</span>' +
+    '    <button class="lp-btn" id="lp-theme" title="主题色">◐</button>' +
     '    <button class="lp-btn" id="lp-add" title="添加入口">+ 添加</button>' +
     '    <button class="lp-btn" id="lp-wide" title="宽窄切换（双击标题栏也可）">宽窄</button>' +
     '    <button class="lp-btn" id="lp-close" title="收起为悬浮球（Esc 同效）">—</button>' +
     '  </div>' +
     '  <div class="lp-body" id="lp-body"></div>' +
-    '  <div class="lp-grip" id="lp-grip" title="拖拽调整大小" style="position:absolute;right:0;bottom:0;width:16px;height:16px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,#00BCF2 50%)"></div>' +
+    '  <div class="lp-grip" id="lp-grip" title="拖拽调整大小" style="position:absolute;right:0;bottom:0;width:16px;height:16px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,var(--lp-accent) 50%)"></div>' +
     '</div>';
   while (ui.firstChild) { shadow.appendChild(ui.firstChild); }
   (document.body || document.documentElement).appendChild(host);
@@ -361,7 +368,7 @@
 
   /* 拖拽把手样式（放进 CSS 字符串太大会被打断，这里补一条） */
   var gripStyle = document.createElement('style');
-  gripStyle.textContent = '.lp-grip{position:absolute;right:0;bottom:0;width:16px;height:16px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,#00BCF2 50%)}';
+  gripStyle.textContent = '.lp-grip{position:absolute;right:0;bottom:0;width:16px;height:16px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,var(--lp-accent) 50%)}';
   shadow.appendChild(gripStyle);
 
   function $(id) { return shadow.getElementById(id); }
@@ -522,6 +529,9 @@
 
   body.addEventListener('click', function (e) {
     try {
+      /* 主题色板：点到别处自动收起 */
+      var popNow = $('lp-theme-pop');
+      if (popNow && !(e.target.closest && e.target.closest('.lp-theme-pop, #lp-theme'))) { closeThemePop(); }
       var btn = e.target.closest ? e.target.closest('[data-act]') : null;
       if (!btn) { return; }
       var act = btn.getAttribute('data-act');
@@ -854,6 +864,58 @@
     applyChrome();
   }
   $('lp-wide').addEventListener('click', toggleWide);
+
+  /* ---- 主题色（v2.0.6）：头部色点按钮 → 6 色小色板，选择后持久化 ---- */
+  var THEMES = [
+    { id: 'azure', name: '晴空蓝', a: '#00BCF2', d: '#0aa9d6', l: '#b3e5f8' },
+    { id: 'teal', name: '薄荷青', a: '#00A99D', d: '#00796B', l: '#B2DFDB' },
+    { id: 'green', name: '嫩芽绿', a: '#60A917', d: '#3F7A0B', l: '#C5E1A5' },
+    { id: 'amber', name: '琥珀橙', a: '#FA6800', d: '#C94A00', l: '#FFCCBC' },
+    { id: 'purple', name: '暮色紫', a: '#7B4FBE', d: '#4E1F5F', l: '#D1C4E9' },
+    { id: 'rose', name: '玫红', a: '#E3008C', d: '#A00063', l: '#F8BBD0' }
+  ];
+  function themeById(id) {
+    for (var i = 0; i < THEMES.length; i++) { if (THEMES[i].id === id) { return THEMES[i]; } }
+    return THEMES[0];
+  }
+  function applyTheme(id) {
+    var t = themeById(id || cfg.theme);
+    cfg.theme = t.id;
+    host.style.setProperty('--lp-accent', t.a);
+    host.style.setProperty('--lp-accent-d', t.d);
+    host.style.setProperty('--lp-accent-l', t.l);
+    var btn = $('lp-theme');
+    if (btn) { btn.title = '主题色（当前：' + t.name + '）'; }
+    return t;
+  }
+  function closeThemePop() {
+    var pop = $('lp-theme-pop');
+    if (pop && pop.parentNode) { pop.parentNode.removeChild(pop); }
+  }
+  function toggleThemePop() {
+    var old = $('lp-theme-pop');
+    if (old) { closeThemePop(); return; }
+    var pop = document.createElement('div');
+    pop.className = 'lp-theme-pop';
+    pop.id = 'lp-theme-pop';
+    var html = '';
+    for (var i = 0; i < THEMES.length; i++) {
+      var t = THEMES[i];
+      html += '<button class="lp-dot' + (t.id === cfg.theme ? ' on' : '') + '" data-tid="' + t.id +
+        '" title="' + t.name + '" style="background:' + t.a + '"></button>';
+    }
+    pop.innerHTML = html;
+    pop.addEventListener('click', function (ev) {
+      var b = ev.target.closest ? ev.target.closest('.lp-dot') : null;
+      if (!b) { return; }
+      var t = applyTheme(b.getAttribute('data-tid'));
+      saveSettings();
+      closeThemePop();
+      toast('主题：' + t.name);
+    });
+    panel.appendChild(pop);
+  }
+  $('lp-theme').addEventListener('click', toggleThemePop);
   head.addEventListener('dblclick', function (e) {
     if (e.target && e.target.tagName === 'BUTTON') { return; }
     toggleWide();
@@ -932,6 +994,7 @@
    * ================================================================ */
   loadState();
   seedIfEmpty();
+  applyTheme(cfg.theme);
   applyChrome();
   renderAll();
 })();
