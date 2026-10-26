@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         启动台浮窗 · 本地版（零登录）
 // @namespace    wb-launchpad-local
-// @version      2.0.1
+// @version      2.0.2
 // @description  任何网页右下角唤出启动台小窗：今日待办、一键启动、打卡、进度、备忘。数据只存在你自己浏览器里，不需要登录任何平台
 // @author       WorkBuddy 启动台
 // @match        http://*/*
@@ -200,8 +200,6 @@
     state.entries = [
       { id: uid(), name: '日语口语', kind: KIND_VIDEO, target: 'https://www.bilibili.com/video/BV1Gs4y1x7Yb', time: '09:00', goal: 5, checkins: [shiftDate(t, -2), shiftDate(t, -4)], note: '每天 15 分钟，跟着视频读', enabled: true, order: 0 },
       { id: uid(), name: '健身操', kind: KIND_VIDEO, target: 'https://www.bilibili.com/video/BV1sK4y1t7Art', time: '18:30', goal: 4, checkins: [shiftDate(t, -1)], note: '', enabled: true, order: 1 },
-      { id: uid(), name: '吉他练习', kind: KIND_LOCAL, target: 'D:\\Music\\GuitarPro\\GuitarPro.exe', time: '20:00', goal: 3, checkins: [shiftDate(t, -3)], note: '爬格子 + 一首曲子', enabled: true, order: 2 },
-      { id: uid(), name: '阅读时间', kind: KIND_VIDEO, target: 'https://www.bilibili.com/video/BV1Kw411u7Nine', time: '21:30', goal: 7, checkins: [], note: '', enabled: true, order: 3 }
     ];
     state.seeded = true;
     saveState();

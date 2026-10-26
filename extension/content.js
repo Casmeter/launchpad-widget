@@ -186,8 +186,6 @@
     state.entries = [
       { id: uid(), name: '日语口语', kind: KIND_VIDEO, target: 'https://www.bilibili.com/video/BV1Gs4y1x7Yb', time: '09:00', goal: 5, checkins: [shiftDate(t, -2), shiftDate(t, -4)], note: '每天 15 分钟，跟着视频读', enabled: true, order: 0 },
       { id: uid(), name: '健身操', kind: KIND_VIDEO, target: 'https://www.bilibili.com/video/BV1sK4y1t7Art', time: '18:30', goal: 4, checkins: [shiftDate(t, -1)], note: '', enabled: true, order: 1 },
-      { id: uid(), name: '吉他练习', kind: KIND_LOCAL, target: 'D:\\Music\\GuitarPro\\GuitarPro.exe', time: '20:00', goal: 3, checkins: [shiftDate(t, -3)], note: '爬格子 + 一首曲子', enabled: true, order: 2 },
-      { id: uid(), name: '阅读时间', kind: KIND_VIDEO, target: 'https://www.bilibili.com/video/BV1Kw411u7Nine', time: '21:30', goal: 7, checkins: [], note: '', enabled: true, order: 3 }
     ];
     state.seeded = true;
     saveState();
