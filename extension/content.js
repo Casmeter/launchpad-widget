@@ -482,17 +482,22 @@
   }
 
   body.addEventListener('click', function (e) {
-    var btn = e.target.closest ? e.target.closest('[data-act]') : null;
-    if (!btn) { return; }
-    var act = btn.getAttribute('data-act');
-    var id = btn.getAttribute('data-id');
-    if (act === 'launch') { launchEntry(id); }
-    else if (act === 'checkin') { toggleCheckin(id); }
-    else if (act === 'edit') { openEditor(id); }
-    else if (act === 'export') { exportJSON(); }
-    else if (act === 'import') { importJSON(); }
-    else if (act === 'reseed') { reseed(); }
-    else if (act === 'clear') { clearAll(); }
+    try {
+      var btn = e.target.closest ? e.target.closest('[data-act]') : null;
+      if (!btn) { return; }
+      var act = btn.getAttribute('data-act');
+      var id = btn.getAttribute('data-id');
+      if (act === 'launch') { launchEntry(id); }
+      else if (act === 'checkin') { toggleCheckin(id); }
+      else if (act === 'edit') { openEditor(id); }
+      else if (act === 'export') { exportJSON(); }
+      else if (act === 'import') { importJSON(); }
+      else if (act === 'reseed') { reseed(); }
+      else if (act === 'clear') { clearAll(); }
+    } catch (err) {
+      console.error('[launchpad] action failed:', err);
+      try { toast('操作失败: ' + ((err && err.message) || err), true); } catch (x) {}
+    }
   });
 
   function findEntry(id) {
@@ -531,6 +536,15 @@
 
 
   function openEditor(id) {
+    /* v2.0.4 防弹：打开失败直接在面板上显示错误，不再静默无反应 */
+    try {
+      openEditorInner(id);
+    } catch (err) {
+      console.error('[launchpad] openEditor failed:', err);
+      try { toast('编辑器打开失败: ' + ((err && err.message) || err), true); } catch (x) {}
+    }
+  }
+  function openEditorInner(id) {
     editingId = id || null;
     var e = id ? findEntry(id) : null;
     var mask = document.createElement('div');
@@ -754,6 +768,15 @@
       if (el.parentNode) { el.parentNode.removeChild(el); }
     }, 2600);
   }
+
+  /* v2.0.4 诊断：未捕获错误直接显示在面板上（不再静默失败，便于远程定位） */
+  window.addEventListener('error', function (e) {
+    try { toast('脚本错误: ' + ((e && e.message) || '未知'), true); } catch (x) {}
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    var r = e && e.reason;
+    try { toast('脚本错误: ' + ((r && r.message) ? r.message : String(r)), true); } catch (x) {}
+  });
 
   /* ================================================================
    * 面板框架（拖拽/缩放/宽窄/快捷键）
