@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "启动台浮窗 · WorkBuddy 任务看板",
+  "version": "1.0.0",
+  "description": "在 WorkBuddy 页面右下角唤出启动台小窗：今日待办、一键启动、打卡，数据与看板实时同步",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://workbuddy.link/*",
+        "https://www.workbuddy.cn/*",
+        "https://workbuddy.cn/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "permissions": ["storage"]
+}
