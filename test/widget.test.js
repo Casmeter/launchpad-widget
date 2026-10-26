@@ -74,8 +74,8 @@ ok(items[2].querySelector('.lp-q-meta').textContent.indexOf('该启动了') >= 0
 
 /* 按钮文案 */
 const goBtns = Array.from(shadow.querySelectorAll('[data-act="launch"]'));
-ok(goBtns.length === 3 && goBtns[0].textContent === '看视频' && goBtns[1].textContent === '启动应用',
-  '启动按钮文案区分类型（看视频/启动应用），实际: ' + goBtns.map(b => b.textContent).join('/'));
+ok(goBtns.length === 3 && goBtns.every(b => b.textContent === '看视频'),
+  '启动按钮统一为「看视频」（本地应用类型已移除），实际: ' + goBtns.map(b => b.textContent).join('/'));
 
 /* 进度区 */
 const bodyEl = shadow.getElementById('lp-body');
@@ -101,15 +101,13 @@ ok(t2.checkins.indexOf(ds(0, now)) >= 0, '打卡日期已写入 localStorage');
 shadow.getElementById('lp-add').click();
 ok(!!shadow.getElementById('lp-editor-mask'), '点「+ 添加」弹层打开');
 shadow.getElementById('lp-f-name').value = '冥想 10 分钟';
-shadow.getElementById('lp-f-kind').value = 'local';
-shadow.getElementById('lp-f-kind').dispatchEvent(new window.Event('change'));
-shadow.getElementById('lp-f-target').value = 'D:\\Tools\\calm.exe';
+shadow.getElementById('lp-f-target').value = 'https://www.bilibili.com/video/BV1xx411c7mD';
 shadow.getElementById('lp-f-time').value = '07:30';
 shadow.getElementById('lp-f-save').click();
 const saved2 = JSON.parse(window.localStorage.getItem('lp_widget_state_v1'));
 ok(saved2.entries.length === 4, '保存后入口数 = 4（实际 ' + saved2.entries.length + '）');
 const newEntry = saved2.entries.find(e => e.name === '冥想 10 分钟');
-ok(newEntry && newEntry.kind === 'local' && newEntry.target === 'D:\\Tools\\calm.exe', '新入口字段正确（类型/路径）');
+ok(newEntry && newEntry.kind === 'video' && newEntry.target.indexOf('http') === 0, '新入口字段正确（类型=video / 视频链接）');
 ok(!shadow.getElementById('lp-editor-mask'), '保存后弹层关闭');
 
 /* ---- 交互：宽窄切换 ---- */

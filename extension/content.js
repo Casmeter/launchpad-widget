@@ -53,7 +53,7 @@
   /* ================================================================
    * 数据模型与纯函数
    * ================================================================ */
-  var KIND_VIDEO = 'video', KIND_LOCAL = 'local';
+  var KIND_VIDEO = 'video';
 
   function todayStr() {
     var d = new Date();
@@ -141,7 +141,7 @@
     if (!e || typeof e !== 'object') { return; }
     if (!e.id) { e.id = uid(); }
     if (typeof e.name !== 'string') { e.name = ''; }
-    if (e.kind !== KIND_LOCAL) { e.kind = KIND_VIDEO; }
+    e.kind = KIND_VIDEO;
     if (typeof e.target !== 'string') { e.target = ''; }
     if (typeof e.time !== 'string' || !/^\d{2}:\d{2}$/.test(e.time)) { e.time = ''; }
     if (typeof e.goal !== 'number' || e.goal < 0) { e.goal = 0; }
@@ -389,8 +389,7 @@
         '</div>' +
         '<div class="lp-q-acts">' +
         (st === 'done' ? '' :
-          '<button class="lp-act go' + (e.kind === KIND_LOCAL ? ' local' : '') + '" data-act="launch" data-id="' + e.id + '">' +
-          (e.kind === KIND_LOCAL ? '启动应用' : '看视频') + '</button>') +
+          '<button class="lp-act go" data-act="launch" data-id="' + e.id + '">看视频</button>') +
         '<button class="lp-act ck' + (st === 'done' ? ' on' : '') + '" data-act="checkin" data-id="' + e.id + '">' +
         (st === 'done' ? '已打卡' : '打卡') + '</button>' +
         '<button class="lp-act ck" data-act="edit" data-id="' + e.id + '" title="编辑">✎</button>' +
@@ -517,9 +516,8 @@
   function launchEntry(id) {
     var e = findEntry(id);
     if (!e) { return; }
-    if (!e.target) { toast('还没有填链接或路径，先编辑', true); openEditor(id); return; }
-    if (e.kind === KIND_LOCAL) { downloadLauncher(e.target, e.name); }
-    else {
+    if (!e.target) { toast('还没有填视频链接，先编辑', true); openEditor(id); return; }
+    {
       var a = document.createElement('a');
       a.href = e.target;
       a.target = '_blank';
@@ -531,34 +529,10 @@
     }
   }
 
-  function downloadLauncher(path, name) {
-    var safe = String(name || '启动器').split('"').join('').split('*').join('').split(':').join('')
-      .split('<').join('').split('>').join('').split('?').join('').split('\\').join('')
-      .split('/').join('').split('|').join('').slice(0, 40);
-    var cleanPath = String(path).split('"').join('');
-    var content = '@echo off\r\nstart "" "' + cleanPath + '"\r\n';
-    try {
-      var blob = new Blob([content], { type: 'text/plain;charset=ascii' });
-      var a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = '启动-' + safe + '.bat';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
-      toast('启动器已下载，双击即可启动（可固定到桌面）');
-    } catch (err) {
-      toast('生成启动器失败：' + err.message, true);
-    }
-  }
-
-  /* ---------- 添加/编辑弹层 ---------- */
-  var editingId = null;
 
   function openEditor(id) {
     editingId = id || null;
     var e = id ? findEntry(id) : null;
-    var isLocal = e ? e.kind === KIND_LOCAL : false;
     var mask = document.createElement('div');
     mask.className = 'lp-mask';
     mask.id = 'lp-editor-mask';
@@ -567,11 +541,10 @@
       '<h3>' + (e ? '编辑入口' : '添加入口') + '</h3>' +
       '<div class="lp-field"><label>名称</label><input id="lp-f-name" type="text" maxlength="40" placeholder="例如：日语口语" value="' + escHtml(e ? e.name : '') + '"></div>' +
       '<div class="lp-field"><label>类型</label><select id="lp-f-kind">' +
-      '<option value="video"' + (e && !isLocal ? ' selected' : '') + '>视频（填链接）</option>' +
-      '<option value="local"' + (isLocal ? ' selected' : '') + '>本地应用（填 exe 路径）</option>' +
+      '<option value="video" selected>视频（填链接）</option>' +
       '</select></div>' +
-      '<div class="lp-field"><label id="lp-f-target-label">' + (isLocal ? '程序路径' : '视频链接') + '</label>' +
-      '<input id="lp-f-target" type="text" placeholder="' + (isLocal ? 'D:\\Tools\\App.exe' : 'https://...') + '" value="' + escHtml(e ? e.target : '') + '"></div>' +
+      '<div class="lp-field"><label id="lp-f-target-label">视频链接</label>' +
+      '<input id="lp-f-target" type="text" placeholder="https://..." value="' + escHtml(e ? e.target : '') + '"></div>' +
       '<div class="lp-field"><label>提醒时间（每天）</label><input id="lp-f-time" type="time" value="' + escHtml(e ? e.time : '') + '"></div>' +
       '<div class="lp-field"><label>每周目标天数</label><input id="lp-f-goal" type="number" min="0" max="7" value="' + (e ? e.goal : 5) + '"></div>' +
       '<div class="lp-field"><label>备注</label><input id="lp-f-note" type="text" maxlength="80" placeholder="选填" value="' + escHtml(e ? e.note : '') + '"></div>' +
@@ -583,13 +556,6 @@
       '<button class="lp-mact pri" id="lp-f-save">保存</button>' +
       '</div></div>';
     panel.appendChild(mask);
-
-    var kindSel = $('lp-f-kind');
-    kindSel.addEventListener('change', function () {
-      var isL = kindSel.value === 'local';
-      $('lp-f-target-label').textContent = isL ? '程序路径' : '视频链接';
-      $('lp-f-target').placeholder = isL ? 'D:\\Tools\\App.exe' : 'https://...';
-    });
     $('lp-f-cancel').addEventListener('click', closeEditor);
     mask.addEventListener('click', function (ev) { if (ev.target === mask) { closeEditor(); } });
     $('lp-f-save').addEventListener('click', saveEditor);
@@ -606,7 +572,7 @@
   function saveEditor() {
     var name = $('lp-f-name').value.trim();
     if (!name) { toast('名称不能为空', true); $('lp-f-name').focus(); return; }
-    var kind = $('lp-f-kind').value;
+    var kind = KIND_VIDEO;
     var target = $('lp-f-target').value.trim();
     var time = $('lp-f-time').value || '';
     var goal = parseInt($('lp-f-goal').value, 10);
@@ -700,7 +666,7 @@
         var e = {};
         e.id = raw.id || uid();
         e.name = raw.name || raw['名称'] || '';
-        e.kind = (raw.kind === 'local' || raw['类型'] === '本地应用') ? KIND_LOCAL : KIND_VIDEO;
+        e.kind = KIND_VIDEO;
         e.target = raw.target || raw['链接或路径'] || '';
         e.time = raw.time || raw['提醒时间'] || '';
         e.goal = typeof raw.goal === 'number' ? raw.goal : (parseInt(raw['每周目标天数'], 10) || 0);
@@ -730,7 +696,7 @@
         var e = {
           id: uid(),
           name: row['名称'] || '',
-          kind: row['类型'] === '本地应用' ? KIND_LOCAL : KIND_VIDEO,
+          kind: KIND_VIDEO,
           target: row['链接或路径'] || '',
           time: row['提醒时间'] || '',
           goal: parseInt(row['每周目标天数'], 10) || 0,
