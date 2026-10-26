@@ -1,10 +1,12 @@
 // ==UserScript==
 // @name         启动台浮窗 · 本地版（零登录）
 // @namespace    wb-launchpad-local
-// @version      2.0.0
+// @version      2.0.1
 // @description  任何网页右下角唤出启动台小窗：今日待办、一键启动、打卡、进度、备忘。数据只存在你自己浏览器里，不需要登录任何平台
 // @author       WorkBuddy 启动台
-// @match        *://*/*
+// @match        http://*/*
+// @match        https://*/*
+// @match        file:///*
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_registerMenuCommand
@@ -29,7 +31,15 @@
       try {
         if (typeof GM_getValue === 'function') {
           var g = GM_getValue(STORE_KEY, '');
-          if (g) { return g; }
+          /* Greasemonkey 4+ 的 GM_getValue 返回 Promise：异步灌入缓存后重渲染一次 */
+          if (g && typeof g.then === 'function') {
+            g.then(function (v) {
+              if (typeof v === 'string' && v) {
+                memFallback[STORE_KEY] = v;
+                setTimeout(function () { if (typeof renderAll === 'function') { loadState(); renderAll(); } }, 0);
+              }
+            });
+          } else if (typeof g === 'string' && g) { return g; }
         }
       } catch (e) { /* 继续降级 */ }
       try {
@@ -329,6 +339,20 @@
     '</div>';
   while (ui.firstChild) { shadow.appendChild(ui.firstChild); }
   (document.body || document.documentElement).appendChild(host);
+
+  /* 防页面脚本（SPA 重渲染 / 反篡改）把 host 摘掉：观察 documentElement，掉了立即挂回 */
+  (function keepAlive() {
+    function reattach() {
+      if (host.parentNode) { return; }
+      var p = document.body || document.documentElement;
+      if (p) { p.appendChild(host); }
+    }
+    try {
+      var obs = new MutationObserver(function () { reattach(); });
+      obs.observe(document.documentElement, { childList: true, subtree: true });
+    } catch (e) { /* 老浏览器没有 MutationObserver 就放弃守护 */ }
+    window.addEventListener('beforeunload', function () { reattach(); });
+  })();
 
   var ball = shadow.getElementById('lp-ball');
   var panel = shadow.getElementById('lp-panel');
